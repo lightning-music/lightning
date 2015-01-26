@@ -11,7 +11,7 @@ on linux, a little on mac os x).
 #### liblightning
 
 First, you have to build and install [liblightning][1].
-This is a C library that plays audio files with [JACK][http://jackaudio.org].
+This is a C library that plays audio files with [JACK](http://jackaudio.org).
 
 #### lightningd
 
