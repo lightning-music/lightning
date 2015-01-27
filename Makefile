@@ -11,17 +11,17 @@ PKG_DIR=lightning
 PKG=$(PKG_DIR).tar.gz
 README=README.md
 DATE=$(shell date +'%Y.%m.%d')
-REQS=$(GOHOME) $(PKG_DIR) $(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_DIR)
+REPOS=$(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_DIR)
 
 .PHONY: linux_amd64 clean install
 
-install: $(REQS)
+install: $(GOHOME) $(REPOS)
 	cd $(LIBLIGHTNING_DIR) && make && sudo make install
 	cd $(LIGHTNINGGO_DIR) && go install -a
 	cd $(LIGHTNINGD_DIR) && go install -a
 
 # Build binary package for 64-bit linux
-linux_amd64: $(REQS)
+linux_amd64: $(GOHOME) $(PKG_DIR) $(REPOS)
 	cd $(LIBLIGHTNING_DIR) && make
 	cd $(LIGHTNINGGO_DIR) && go install -a
 	cd $(LIGHTNINGD_DIR) && make
