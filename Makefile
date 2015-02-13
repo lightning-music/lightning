@@ -12,11 +12,12 @@ PKG_DIR=lightning
 PKG=$(PKG_DIR).tar.gz
 README=README.md
 DATE=$(shell date +'%Y.%m.%d')
+REPOS=$(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_DIR)
 
 .PHONY: linux_amd64 clean install
 
-install:
-	cd $(LIBLIGHTNING_DIR) && make && make install
+install: $(GOHOME) $(REPOS)
+	cd $(LIBLIGHTNING_DIR) && make && sudo make install
 	cd $(LIGHTNINGGO_DIR) && go install -a
 	cd $(LIGHTNINGD_DIR) && go install -a
 
