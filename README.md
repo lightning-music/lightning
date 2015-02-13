@@ -10,7 +10,7 @@ on linux, a little on mac os x).
 
 ### Requirements
 
-**You must have a [JACK][6] server running to use lightning. On linux this is usually very easy (see below). On mac, use [jackosx.com][http://jackosx.com].**
+**You must have a [JACK][6] server running to use lightning. On linux this is usually very easy (see below). On mac, use [jackosx.com](http://jackosx.com).**
 
 lightning is built around a server program called [lightningd][2]. See the lightningd page for more detailed info.
 
