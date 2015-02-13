@@ -20,7 +20,7 @@ Once you have lightningd up and running, point your web browser to `localhost:34
 
 The [Makefile][5] in this repo contains the following targets which build binary packages:
 
-* linux_amd64
+* linux
 
 [1]: https://github.com/lightning/liblightning
 [2]: https://github.com/lightning/lightningd
