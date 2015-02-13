@@ -6,6 +6,7 @@ LIGHTNINGGO_DIR=$(GOHOME)/go
 LIGHTNINGD_GIT=https://github.com/lightning/lightningd.git
 LIGHTNINGD_DIR=$(GOHOME)/lightningd
 WWW_GIT=https://github.com/lightning/www.git
+LINUX_MAKEFILE=linux.mk
 
 PKG_DIR=lightning
 PKG=$(PKG_DIR).tar.gz
@@ -20,14 +21,15 @@ install:
 	cd $(LIGHTNINGD_DIR) && go install -a
 
 # Build binary package for 64-bit linux
-linux_amd64: $(GOHOME) $(PKG_DIR) $(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_DIR)
+linux: $(GOHOME) $(PKG_DIR) $(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_DIR)
 	cd $(LIBLIGHTNING_DIR) && make
 	cd $(LIGHTNINGGO_DIR) && go install -a
 	cd $(LIGHTNINGD_DIR) && make
 	cp $(LIGHTNINGD_DIR)/lightningd $(PKG_DIR)
 	cd $(PKG_DIR) && git clone $(WWW_GIT)
-	cp LICENSE README.md $(PKG_DIR)
-	cp linux_amd64.mk $(PKG_DIR)/Makefile
+	cp LICENSE $(PKG_DIR)
+	cp README.md $(PKG_DIR)/README
+	cp $(LINUX_MAKEFILE) $(PKG_DIR)/Makefile
 	tar czf $(PKG_DIR)-$(DATE).tar.gz $(PKG_DIR)
 
 $(PKG_DIR):
@@ -46,4 +48,4 @@ $(LIGHTNINGGO_DIR):
 	cd $(GOHOME) git clone $(LIGHTNINGGO_GIT)
 
 clean:
-	rm -rf *~ $(PKG_DIR) $(LIBLIGHTNING_DIR)
+	rm -rf *~ $(PKG_DIR) $(LIBLIGHTNING_DIR) *.tar.gz

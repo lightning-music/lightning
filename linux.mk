@@ -1,3 +1,4 @@
+# install lightning on linux
 PREFIX=/usr/local
 BIN_DIR=$(PREFIX)/bin
 LIB_DIR=$(PREFIX)/lib

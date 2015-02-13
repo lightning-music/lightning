@@ -4,39 +4,26 @@ lightning is a simple application that makes it easy and fun
 to create music on unix-like operating systems (tested mostly
 on linux, a little on mac os x).
 
-## install from source
+### Download
 
-### requirements
+* [stable][4]
 
-#### liblightning
+### Requirements
 
-First, you have to build and install [liblightning][1].
-This is a C library that plays audio files with [JACK][http://jackaudio.org].
+**You must have a [JACK] server running to use lightning. On linux this is usually very easy (see below). On mac, use [jackosx.com][http://jackosx.com].**
 
-#### lightningd
+lightning is built around a server program called [lightningd][2]. See the lightningd page for more detailed info.
 
-Next you have to build the [lightningd][2] server program.
-This program provides a sample-sequencer that is controlled
-via a websocket API.
+Once you have lightningd up and running, point your web browser to `localhost:3428`.
 
-#### www
+### Packaging
 
-Finally you have to install the [web components][3] for the lightning
-front end. When you start lightningd, it must be told where the
-web components have been installed with the `-www` flag.
+The [Makefile][5] in this repo contains the following targets which build binary packages:
 
-### usage
-
-Start lightningd.
-
-```shell
-$ lightningd -www /usr/share/lightning/www
-```
-
-Point your web browser to `localhost:3428`.
-
-TODO: in-depth user docs.
+* linux_amd64
 
 [1]: https://github.com/lightning/liblightning
 [2]: https://github.com/lightning/lightningd
 [3]: https://github.com/lightning/www
+[4]: http://sorahan.net/lightning
+[5]: https://github.com/lightning/lightning/blob/master/Makefile
