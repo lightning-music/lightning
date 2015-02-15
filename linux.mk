@@ -1,5 +1,5 @@
 # install lightning on linux
-PREFIX=/usr/local
+PREFIX=$(DESTDIR)/usr/local
 BIN_DIR=$(PREFIX)/bin
 LIB_DIR=$(PREFIX)/lib
 SHARE_DIR=$(PREFIX)/share/lightning
@@ -10,5 +10,7 @@ WWW=www
 .PHONY: install
 
 install:
-	install -vC $(LIGHTNINGD) $(DESTDIR)/$(BIN_DIR)
-	install -vC $(WWW) $(DESTDIR)/$(SHARE_DIR)
+	install -vC $(LIGHTNINGD) $(BIN_DIR)
+	mkdir -p $(SHARE_DIR)
+	rm -rf $(SHARE_DIR)/$(WWW)
+	cp -R $(WWW) $(SHARE_DIR)
