@@ -28,10 +28,11 @@ linux: $(GOHOME) $(PKG_DIR) $(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_
 	cd $(LIGHTNINGD_DIR) && make
 	cp $(LIGHTNINGD_DIR)/lightningd $(PKG_DIR)
 	cd $(PKG_DIR) && git clone $(WWW_GIT)
+	rm -rf $(PKG_DIR)/$(WWW_GIT)/.git
 	cp LICENSE $(PKG_DIR)
 	cp README.md $(PKG_DIR)/README
 	cp $(LINUX_MAKEFILE) $(PKG_DIR)/Makefile
-	tar czf $(PKG_DIR)-$(DATE).tar.gz $(PKG_DIR)
+	tar czf $(PKG_DIR)-$(shell date -u +%s).tar.gz $(PKG_DIR)
 
 $(PKG_DIR):
 	mkdir $(PKG_DIR)
