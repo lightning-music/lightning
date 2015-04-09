@@ -1,4 +1,8 @@
 *~
-liblightning/
-lightning/
 *.tar.gz
+core
+*.log
+docs/
+examples/play-file
+examples/play-sample
+examples/lightning-play-sample

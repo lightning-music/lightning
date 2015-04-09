@@ -1,53 +1,43 @@
-LIBLIGHTNING_GIT=https://github.com/lightning/liblightning.git
-LIBLIGHTNING_DIR=liblightning
-LIGHTNINGGO_GIT=https://github.com/lightning/go.git
-GOHOME=$(GOPATH)/src/github.com/lightning
-LIGHTNINGGO_DIR=$(GOHOME)/go
-LIGHTNINGD_GIT=https://github.com/lightning/lightningd.git
-LIGHTNINGD_DIR=$(GOHOME)/lightningd
-WWW_GIT=https://github.com/lightning/www.git
-LINUX_MAKEFILE=linux.mk
+# liblightning
+# Brian Sorahan 2014
+include flags.mk
+include objs.mk
+include vars.mk
 
-PKG_DIR=lightning
-PKG=$(PKG_DIR).tar.gz
-README=README.md
-DATE=$(shell date +'%Y.%m.%d')
-REPOS=$(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_DIR)
+.PHONY: all install clean docs examples sorahan.net
 
-.PHONY: linux_amd64 clean install
+all .DEFAULT: $(LIBLIGHTNING_AR) $(EXAMPLES)
 
-install: $(GOHOME) $(REPOS)
-	cd $(LIBLIGHTNING_DIR) && make && sudo make install
-	cd $(LIGHTNINGGO_DIR) && go install -a
-	cd $(LIGHTNINGD_DIR) && go install -a
+install: $(LIBLIGHTNING_AR) $(includedir)
+	install -vC $(LIBLIGHTNING_AR) $(DESTDIR)$(libdir)
+	install -vC $(HEADERS) $(DESTDIR)$(includedir)
 
-# Build binary package for 64-bit linux
-linux: $(GOHOME) $(PKG_DIR) $(LIGHTNINGD_DIR) $(LIGHTNINGGO_DIR) $(LIBLIGHTNING_DIR)
-	cd $(LIBLIGHTNING_DIR) && make
-	cd $(LIGHTNINGGO_DIR) && go install -a
-	cd $(LIGHTNINGD_DIR) && make
-	cp $(LIGHTNINGD_DIR)/lightningd $(PKG_DIR)
-	cd $(PKG_DIR) && git clone $(WWW_GIT)
-	rm -rf $(PKG_DIR)/$(WWW_GIT)/.git
-	cp LICENSE $(PKG_DIR)
-	cp README.md $(PKG_DIR)/README
-	cp $(LINUX_MAKEFILE) $(PKG_DIR)/Makefile
-	tar czf $(PKG_DIR)-$(shell date -u +%s).tar.gz $(PKG_DIR)
+$(includedir):
+	mkdir $(includedir)
 
-$(PKG_DIR):
-	mkdir $(PKG_DIR)
-
-$(GOHOME):
-	mkdir -p $(GOHOME)
-
-$(LIBLIGHTNING_DIR):
-	git clone $(LIBLIGHTNING_GIT)
-
-$(LIGHTNINGD_DIR):
-	cd $(GOHOME) && git clone $(LIGHTNINGD_GIT)
-
-$(LIGHTNINGGO_DIR):
-	cd $(GOHOME) git clone $(LIGHTNINGGO_GIT)
+uninstall:
+	rm $(DESTDIR)$(libdir)/$(LIBLIGHTNING_AR)
 
 clean:
-	rm -rf *~ $(PKG_DIR) $(LIBLIGHTNING_DIR) *.tar.gz
+	rm -rf $(EXAMPLES) *~ *.o examples/*~
+	rm -rf $(LIBLIGHTNING_AR) $(LIBLIGHTNING_SO) $(SHARED_DIR)
+	rm -rf core *.log *.tar.gz
+
+test/check-list: test/check-list.c $(LIBLIGHTNING_AR)
+
+$(LIBLIGHTNING_AR): $(OBJS)
+	$(AR) rcs $(LIBLIGHTNING_AR) $^
+
+examples: examples/play-file                    \
+          examples/play-sample                  \
+          examples/lightning-play-sample
+
+examples/play-file: examples/play-file.c
+examples/play-sample: examples/play-sample.c
+examples/lightning-play-sample: examples/lightning-play-sample.c
+
+docs:
+	doxygen
+
+sorahan.net:
+	scp -r docs/html/* root@sorahan.net:/var/www/html/liblightning

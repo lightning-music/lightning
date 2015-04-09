@@ -1,30 +1,33 @@
-# lightning
+lightning is a go wrapper around a c library for playing back audio
+samples. With it you can
 
-lightning is a simple application that makes it easy and fun
-to create music on unix-like operating systems (tested mostly
-on linux, a little on mac os x).
+* Play any file format supported by libsndfile
+* Control over playback speed and gain
 
-### Download
+For go usage see the [godocs](http://godoc.org/github.com/lightning/lightning).
 
-* [stable][4]
+For the C api, see [lightning.h](http://github.com/lightning/lightning/blob/master/lightning.h).
 
-### Requirements
+Build
+=====
 
-**You must have a [JACK][6] server running to use lightning. On linux this is usually very easy. On mac, use [jackosx.com](http://jackosx.com).**
+Dependencies:
 
-lightning is built around a server program called [lightningd][2]. See the lightningd page for more detailed info.
+* jack
+* libsndfile
+* libsamplerate
 
-Once you have lightningd up and running, point your web browser to `localhost:3428`.
+On ubuntu-based systems you can do
 
-### Packaging
+```shell
+# apt-get install libjack-dev libsndfile1-dev libsamplerate0-dev
+```
 
-The [Makefile][5] in this repo contains the following targets which build binary packages:
+Then 
 
-* linux
+```shell
+# make
+# make install
+```
 
-[1]: https://github.com/lightning/liblightning
-[2]: https://github.com/lightning/lightningd
-[3]: https://github.com/lightning/www
-[4]: http://sorahan.net/lightning
-[5]: https://github.com/lightning/lightning/blob/master/Makefile
-[6]: http://jackaudio.org
+If you wish to contribute, see CONTRIBUTING.
