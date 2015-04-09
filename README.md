@@ -4,12 +4,8 @@ samples. With it you can
 * Play any file format supported by libsndfile
 * Control over playback speed and gain
 
-For go usage see the [godocs](http://godoc.org/github.com/lightning/lightning).
-
-For the C api, see [lightning.h](http://github.com/lightning/lightning/blob/master/lightning.h).
-
-Build
-=====
+Install
+=======
 
 Dependencies:
 
@@ -17,17 +13,35 @@ Dependencies:
 * libsndfile
 * libsamplerate
 
+To install just the C library, install the dependencies then
+
+```shell
+make
+make install
+```
+
 On ubuntu-based systems you can do
 
 ```shell
-# apt-get install libjack-dev libsndfile1-dev libsamplerate0-dev
+apt-get install libjack-dev libsndfile1-dev libsamplerate0-dev
 ```
 
-Then 
+To install the go library you have to install the dependencies,
+install [go](http://golang.org/dl), follow [these](http://golang.org/doc/code.html)
+instructions for setting up your workspace and GOPATH environment variable, then
 
 ```shell
-# make
-# make install
+go get github.com/lightning/lightning
 ```
 
-If you wish to contribute, see CONTRIBUTING.
+Usage
+=====
+
+For go usage see the [godocs](http://godoc.org/github.com/lightning/lightning).
+
+For the C api, see [lightning.h](http://github.com/lightning/lightning/blob/master/lightning.h).
+
+Contributing
+============
+
+If you wish to contribute, see [CONTRIBUTING](http://github.com/lightning/lightning/blob/master/CONTRIBUTING).
