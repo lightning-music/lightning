@@ -5,7 +5,7 @@
 #include "mem.h"
 
 void *
-mem_alloc(long nbytes,
+lightning_mem_alloc(long nbytes,
           const char * file,
           int line) {
     void *p;
@@ -17,7 +17,7 @@ mem_alloc(long nbytes,
 }
 
 void *
-mem_calloc(int count,
+lightning_mem_calloc(int count,
            long nbytes,
            const char * file,
            int line) {
@@ -30,7 +30,7 @@ mem_calloc(int count,
 }
 
 void
-mem_free(void * ptr,
+lightning_mem_free(void * ptr,
          const char * file,
          int line) {
     if (ptr)
@@ -38,7 +38,7 @@ mem_free(void * ptr,
 }
 
 void *
-mem_resize(void * ptr,
+lightning_mem_resize(void * ptr,
            long nbytes,
            const char * file,
            int line) {
