@@ -6,14 +6,14 @@
 #include "mem.h"
 #include "thread.h"
 
-struct Thread {
+struct LightningThread {
     pthread_t threadId;
 };
 
-Thread
-Thread_create(ThreadFunction f, ThreadArgument arg)
+LightningThread
+LightningThread_create(LightningThreadFunction f, LightningThreadArgument arg)
 {
-    Thread t;
+    LightningThread t;
     NEW(t);
     int error = pthread_create(&t->threadId, NULL, f, arg);
     if (error) {
@@ -24,14 +24,14 @@ Thread_create(ThreadFunction f, ThreadArgument arg)
 }
 
 int
-Thread_join(Thread t)
+LightningThread_join(LightningThread t)
 {
     assert(t);
     return pthread_join(t->threadId, NULL);
 }
 
 void
-Thread_free(Thread *t)
+LightningThread_free(LightningThread *t)
 {
     assert(t && *t);
     FREE(*t);

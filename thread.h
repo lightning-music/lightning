@@ -1,19 +1,19 @@
 #ifndef THREAD_H_INCLUDED
 #define THREAD_H_INCLUDED
 
-typedef void * (* ThreadFunction)(void *);
+typedef void * (* LightningThreadFunction)(void *);
 
-typedef void * ThreadArgument;
+typedef void * LightningThreadArgument;
 
-typedef struct Thread *Thread;
+typedef struct LightningThread *LightningThread;
 
-Thread
-Thread_create(ThreadFunction f, ThreadArgument arg);
+LightningThread
+LightningThread_create(LightningThreadFunction f, LightningThreadArgument arg);
 
 int
-Thread_join(Thread t);
+LightningThread_join(LightningThread t);
 
 void
-Thread_free(Thread *t);
+LightningThread_free(LightningThread *t);
 
 #endif

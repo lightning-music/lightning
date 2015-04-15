@@ -39,7 +39,7 @@ struct SampleRam {
     Mutex framep_mutex;
     nframes_t total_frames_written;
     // provide a way to synchronize a thread on the `done` event
-    Event done_event;
+    LightningEvent done_event;
     /* sample rate converters */
     double src_ratio;
     /* sample state and associated mutex */
@@ -210,7 +210,7 @@ SampleRam_init(const char *file, pitch_t pitch, gain_t gain, nframes_t output_sr
     s->channels = SF_channels(sf);
     s->frames = SF_frames(sf);
     s->samplerate = SF_samplerate(sf);
-    s->done_event = Event_init(NULL);
+    s->done_event = LightningEvent_init(NULL);
     /* allocate stereo buffers */
     double src_ratio = output_sr / (double) s->samplerate;
     nframes_t output_frames = (nframes_t) ceil(s->frames * src_ratio);
@@ -260,7 +260,7 @@ SampleRam_clone(SampleRam orig, pitch_t pitch, gain_t gain, nframes_t output_sr)
     s->channels = orig->channels;
     s->samplerate = orig->samplerate;
     s->src_ratio = output_sr / (double) orig->samplerate;
-    s->done_event = Event_init(NULL);
+    s->done_event = LightningEvent_init(NULL);
     SampleRam_set_path(s, orig->path);
     allocate_frame_buffers(s, s->frames);
     copy_frame_buffers(s, orig, s->gain);
@@ -332,7 +332,7 @@ SampleRam_write(SampleRam samp, sample_t **buffers, channels_t channels,
 
     if (at_end) {
         SampleRam_set_state(samp, Finished);
-        Event_try_broadcast(samp->done_event, NULL);
+        LightningEvent_try_broadcast(samp->done_event, NULL);
     } else {
         samp->framep += frames_used;
     }
@@ -351,7 +351,7 @@ int
 SampleRam_wait(SampleRam samp)
 {
     assert(samp);
-    return Event_wait(samp->done_event);
+    return LightningEvent_wait(samp->done_event);
 }
 
 /**
@@ -366,7 +366,7 @@ SampleRam_free(SampleRam *samp)
     /* free the path char array */
     FREE(s->path);
     /* free the done event */
-    Event_free(&s->done_event);
+    LightningEvent_free(&s->done_event);
     /* free the framep mutex */
     Mutex_free(&s->framep_mutex);
     /* free the state mutex */

@@ -33,17 +33,17 @@ struct Samples {
     Ringbuffer play_buf;
     /* event used to signal that a Sample needs
        to be added to the play buffer */
-    Event play_event;
+    LightningEvent play_event;
     /* thread used to push samples into the play buffer
        every time there is a play event */
-    Thread play_thread;
+    LightningThread play_thread;
     /* buffer containing samples that need to be freed */
     Ringbuffer free_buf;
     /* event used to signal when there are samples that
        need to be freed */
-    Event free_event;
+    LightningEvent free_event;
     /* thread that frees samples */
-    Thread free_thread;
+    LightningThread free_thread;
     /* state for objects being used in the realtime thread */
     Realtime state;
     /* Sample pointer used for pushing samples into the play
@@ -73,10 +73,10 @@ free_done_samples(void *arg);
  * and exactly one reader thread and that these threads
  * never change.
  */
-typedef struct ThreadData {
+typedef struct LightningThreadData {
     Ringbuffer buf;
-    Event event;
-} *ThreadData;
+    LightningEvent event;
+} *LightningThreadData;
 
 /**
  * Search directories for a sample and return Sample_init
@@ -127,24 +127,24 @@ Samples_init(nframes_t output_sr)
 
     /* setup play thread */
 
-    ThreadData play_thread;
+    LightningThreadData play_thread;
     NEW(play_thread);
     samps->play_buf = Ringbuffer_init(sizeof(Sample) * MAX_POLYPHONY);
     if (0 != Ringbuffer_mlock(samps->play_buf)) {
         LOG(Error, "Could not %s ringbuffer", "mlock");
     }
-    samps->play_event = Event_init();
+    samps->play_event = LightningEvent_init();
     play_thread->buf = samps->play_buf;
     play_thread->event = samps->play_event;
-    samps->play_thread = Thread_create(play_new_samples, play_thread);
+    samps->play_thread = LightningThread_create(play_new_samples, play_thread);
 
     /* setup free thread */
 
-    ThreadData free_thread;
+    LightningThreadData free_thread;
     NEW(free_thread);
-    samps->free_event = Event_init();
+    samps->free_event = LightningEvent_init();
     free_thread->event = samps->free_event;
-    samps->free_thread = Thread_create(free_done_samples, free_thread);
+    samps->free_thread = LightningThread_create(free_done_samples, free_thread);
 
     /* samps->new_sample = ALLOC(sizeof(Sample)); */
 
@@ -226,7 +226,7 @@ Samples_play(Samples samps, const char *path, pitch_t pitch, gain_t gain)
     LOG(Debug, "loaded %p", cached);
     Sample samp = Sample_clone(cached, pitch, gain, samps->output_sr);
     LOG(Debug, "cloned %p to %p", cached, samp);
-    Event_broadcast(samps->play_event, samp);
+    LightningEvent_broadcast(samps->play_event, samp);
     return samp;
 }
 
@@ -291,7 +291,7 @@ Samples_write(Samples samps,
 
         if (Sample_done(samps->active[i])) {
             /* remove from the active list and free the sample */
-            Event_try_broadcast(samps->free_event, samps->active[i]);
+            LightningEvent_try_broadcast(samps->free_event, samps->active[i]);
             /* Sample_free(&samps->active[i]); */
             samps->active[i] = NULL;
         }
@@ -314,7 +314,7 @@ Samples_free(Samples *samps)
     assert(samps && *samps);
     int i = 0;
     Samples s = *samps;
-    Event_free(&s->play_event);
+    LightningEvent_free(&s->play_event);
     Ringbuffer_free(&s->play_buf);
     BinTree_free(&s->cache);
     /* free auxiliary buffers */
@@ -322,8 +322,8 @@ Samples_free(Samples *samps)
         FREE(s->sum_bufs[i]);
         FREE(s->collect_bufs[i]);
     }
-    Thread_free(&s->play_thread);
-    Thread_free(&s->free_thread);
+    LightningThread_free(&s->play_thread);
+    LightningThread_free(&s->free_thread);
     Realtime_free(&s->state);
     /* FREE(s->new_sample); */
     FREE(s->sum_bufs);
@@ -334,12 +334,12 @@ Samples_free(Samples *samps)
 void *
 play_new_samples(void *arg)
 {
-    ThreadData data = (ThreadData) arg;
-    Event event = data->event;
+    LightningThreadData data = (LightningThreadData) arg;
+    LightningEvent event = data->event;
     Ringbuffer rb = data->buf;
     while (1) {
-        Event_wait(event);
-        Sample samp = (Sample) Event_value(event);
+        LightningEvent_wait(event);
+        Sample samp = (Sample) LightningEvent_value(event);
         if (samp != NULL) {
             LOG(Debug, "play_new_samples adding %p to the ringbuffer", samp);
             Ringbuffer_write(rb, (void *) &samp, sizeof(Sample));
@@ -350,11 +350,11 @@ play_new_samples(void *arg)
 void *
 free_done_samples(void *arg)
 {
-    ThreadData data = (ThreadData) arg;
-    Event event = data->event;
+    LightningThreadData data = (LightningThreadData) arg;
+    LightningEvent event = data->event;
     while (1) {
-        Event_wait(event);
-        Sample samp = (Sample) Event_value(event);
+        LightningEvent_wait(event);
+        Sample samp = (Sample) LightningEvent_value(event);
         if (samp != NULL) {
             LOG(Debug, "free_done_samples freeing %p", samp);
             Sample_free(&samp);

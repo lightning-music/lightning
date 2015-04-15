@@ -107,15 +107,15 @@ struct ExportThread {
     /* file name */
     char *file;
     /* start event, should be signalled with a filename */
-    Event start_event;
-    /* Event that signals there is data to write */
-    Event data_event;
+    LightningEvent start_event;
+    /* LightningEvent that signals there is data to write */
+    LightningEvent data_event;
     /* JACK sample rate */
     nframes_t output_sr;
     /* output channels */
     channels_t channels;
     /* reference to the thread */
-    Thread thread;
+    LightningThread thread;
     /* flag to tell whether we are currently exporting,
        and associated mutex to protect concurrent reads/writes */
     volatile int exporting;
@@ -137,10 +137,10 @@ ExportThread_create(nframes_t output_sr, channels_t channels)
     thread->channels = channels;
     thread->exporting_mutex = Mutex_init();
     thread->output_sr = output_sr;
-    thread->start_event = Event_init(NULL);
-    thread->data_event = Event_init(NULL);
+    thread->start_event = LightningEvent_init(NULL);
+    thread->data_event = LightningEvent_init(NULL);
     thread->rb = Ringbuffer_init(4096 * SAMPLE_SIZE * channels);
-    thread->thread = Thread_create(export_thread, thread);
+    thread->thread = LightningThread_create(export_thread, thread);
     return thread;
 }
 
@@ -174,7 +174,7 @@ ExportThread_write(ExportThread thread, sample_t **bufs, nframes_t frames)
         size_t bytes_written =                          \
             Ringbuffer_write(thread->rb, ibuf, bytes_total);
 
-        Event_broadcast(thread->data_event, NULL);
+        LightningEvent_broadcast(thread->data_event, NULL);
 
         return bytes_written / (thread->channels * SAMPLE_SIZE);
     } else {
@@ -212,7 +212,7 @@ int
 ExportThread_start(ExportThread thread, const char *file)
 {
     assert(thread && thread->start_event);
-    Event_signal(thread->start_event, (void *) file);
+    LightningEvent_signal(thread->start_event, (void *) file);
     return ExportThread_set_exporting(thread, 1);
 }
 
@@ -225,7 +225,7 @@ ExportThread_stop(ExportThread thread)
         LOG(Warn, "could not set exporting to %d", 0);
         return error;
     }
-    return Event_broadcast(thread->data_event, NULL);
+    return LightningEvent_broadcast(thread->data_event, NULL);
 }
 
 /**
@@ -237,8 +237,8 @@ ExportThread_free(ExportThread *thread)
     assert(thread && *thread);
     ExportThread t = *thread;
     Ringbuffer_free(&t->rb);
-    Event_free(&t->start_event);
-    Event_free(&t->data_event);
+    LightningEvent_free(&t->start_event);
+    LightningEvent_free(&t->data_event);
     Mutex_free(&t->exporting_mutex);
     FREE(t->file);
 }
@@ -254,9 +254,9 @@ export_thread(void *arg)
 
  wait_for_start_event:
     /* wait for the start event */
-    Event_wait(thread->start_event);
+    LightningEvent_wait(thread->start_event);
 
-    char *file = (char *) Event_value(thread->start_event);
+    char *file = (char *) LightningEvent_value(thread->start_event);
     LOG(Debug, "exporting to %s", file);
     SF sf = SF_open_write(file, thread->channels, thread->output_sr, SF_FMT_WAV);
 
@@ -271,7 +271,7 @@ export_thread(void *arg)
 
     while (1) {
         /* wait for data */
-        Event_wait(thread->data_event);
+        LightningEvent_wait(thread->data_event);
 
         exporting = ExportThread_is_exporting(thread);
 

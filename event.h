@@ -7,60 +7,60 @@
 #ifndef EVENT_H_INCLUDED
 #define EVENT_H_INCLUDED
 
-typedef struct Event *Event;
+typedef struct LightningEvent *LightningEvent;
 
-Event
-Event_init();
+LightningEvent
+LightningEvent_init();
 
 /**
  * Lock the event's mutex
  */
 int
-Event_lock(Event e);
+LightningEvent_lock(LightningEvent e);
 
 int
-Event_wait(Event e);
+LightningEvent_wait(LightningEvent e);
 
 int
-Event_timedwait(Event e, long ns);
+LightningEvent_timedwait(LightningEvent e, long ns);
 
 /**
  * Signal the event.
  * This function can block for a long time because
- * it uses Mutex_lock to acquire the Event's mutex
+ * it uses Mutex_lock to acquire the LightningEvent's mutex
  */
 int
-Event_signal(Event e, void *value);
+LightningEvent_signal(LightningEvent e, void *value);
 
 /**
  * Signal the event, but use Mutex_trylock
  * to acquire the lock.
  */
 int
-Event_try_signal(Event e, void *value);
+LightningEvent_try_signal(LightningEvent e, void *value);
 
 /**
  * Broadcast the event.
  * This function can block for a long time because
- * it uses Mutex_lock to acquire the Event's mutex
+ * it uses Mutex_lock to acquire the LightningEvent's mutex
  */
 int
-Event_broadcast(Event e, void *value);
+LightningEvent_broadcast(LightningEvent e, void *value);
 
 /**
  * Broadcast the event, but use Mutex_trylock
  * to acquire the lock.
  */
 int
-Event_try_broadcast(Event e, void *value);
+LightningEvent_try_broadcast(LightningEvent e, void *value);
 
 void
-Event_set_value(Event e, void *value);
+LightningEvent_set_value(LightningEvent e, void *value);
 
 void *
-Event_value(Event e);
+LightningEvent_value(LightningEvent e);
 
 void
-Event_free(Event *e);
+LightningEvent_free(LightningEvent *e);
 
 #endif

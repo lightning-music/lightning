@@ -7,71 +7,71 @@
 #include "mem.h"
 
 typedef enum {
-    EventState_NotReady,
-    EventState_Ready
-} EventState;
+    LightningEventState_NotReady,
+    LightningEventState_Ready
+} LightningEventState;
 
-struct Event {
+struct LightningEvent {
     void *val;
-    EventState state;
+    LightningEventState state;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
 };
 
-Event
-Event_init()
+LightningEvent
+LightningEvent_init()
 {
-    Event e;
+    LightningEvent e;
     NEW(e);
     pthread_mutex_init(&e->mutex, NULL);
     pthread_cond_init(&e->cond, NULL);
-    e->state = EventState_NotReady;
+    e->state = LightningEventState_NotReady;
     e->val = NULL;
     return e;
 }
 
 int
-Event_lock(Event e)
+LightningEvent_lock(LightningEvent e)
 {
     assert(e);
     return pthread_mutex_lock(&e->mutex);
 }
 
 int
-Event_wait(Event e)
+LightningEvent_wait(LightningEvent e)
 {
     assert(e);
-    e->state = EventState_NotReady;
+    e->state = LightningEventState_NotReady;
     int result = pthread_cond_wait(&e->cond, &e->mutex);
-    if (e->state != EventState_Ready) {
-        return Event_wait(e);
+    if (e->state != LightningEventState_Ready) {
+        return LightningEvent_wait(e);
     } else {
         return result;
     }
 }
 
 int
-Event_timedwait(Event e, long ns)
+LightningEvent_timedwait(LightningEvent e, long ns)
 {
     assert(e);
-    e->state = EventState_NotReady;
+    e->state = LightningEventState_NotReady;
     struct timespec time;
     time.tv_nsec = ns;
     int result = pthread_cond_timedwait(&e->cond, &e->mutex, &time);
-    if (e->state != EventState_Ready) {
-        return Event_timedwait(e, ns);
+    if (e->state != LightningEventState_Ready) {
+        return LightningEvent_timedwait(e, ns);
     } else {
         return result;
     }
 }
 
 int
-Event_signal(Event e, void *value)
+LightningEvent_signal(LightningEvent e, void *value)
 {
     assert(e);
     int fail = pthread_mutex_lock(&e->mutex);
     if (!fail) {
-        e->state = EventState_Ready;
+        e->state = LightningEventState_Ready;
         e->val = value;
         fail = pthread_cond_signal(&e->cond);
         if (!fail) {
@@ -85,12 +85,12 @@ Event_signal(Event e, void *value)
 }
 
 int
-Event_try_signal(Event e, void *value)
+LightningEvent_try_signal(LightningEvent e, void *value)
 {
     assert(e);
     int fail = pthread_mutex_trylock(&e->mutex);
     if (!fail) {
-        e->state = EventState_Ready;
+        e->state = LightningEventState_Ready;
         e->val = value;
         fail = pthread_cond_signal(&e->cond);
         if (!fail) {
@@ -104,12 +104,12 @@ Event_try_signal(Event e, void *value)
 }
 
 int
-Event_broadcast(Event e, void *value)
+LightningEvent_broadcast(LightningEvent e, void *value)
 {
     assert(e);
     int fail = pthread_mutex_lock(&e->mutex);
     if (!fail) {
-        e->state = EventState_Ready;
+        e->state = LightningEventState_Ready;
         e->val = value;
         fail = pthread_cond_broadcast(&e->cond);
         if (!fail) {
@@ -123,12 +123,12 @@ Event_broadcast(Event e, void *value)
 }
 
 int
-Event_try_broadcast(Event e, void *value)
+LightningEvent_try_broadcast(LightningEvent e, void *value)
 {
     assert(e);
     int fail = pthread_mutex_trylock(&e->mutex);
     if (!fail) {
-        e->state = EventState_Ready;
+        e->state = LightningEventState_Ready;
         e->val = value;
         fail = pthread_cond_broadcast(&e->cond);
         if (!fail) {
@@ -142,21 +142,21 @@ Event_try_broadcast(Event e, void *value)
 }
 
 void
-Event_set_value(Event e, void *value)
+LightningEvent_set_value(LightningEvent e, void *value)
 {
     assert(e);
     e->val = value;
 }
 
 void *
-Event_value(Event e)
+LightningEvent_value(LightningEvent e)
 {
     assert(e);
     return e->val;
 }
 
 void
-Event_free(Event *e)
+LightningEvent_free(LightningEvent *e)
 {
     assert(e && *e);
     pthread_mutex_destroy( &(*e)->mutex );
