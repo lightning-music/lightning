@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
-#include <types.h>
 #include <stddef.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -10,6 +9,7 @@
 
 #include "bin-tree.h"
 #include "event.h"
+#include "lightning.h"
 #include "log.h"
 #include "mem.h"
 #include "realtime.h"

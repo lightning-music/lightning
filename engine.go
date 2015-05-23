@@ -3,7 +3,6 @@ package lightning
 // #cgo CFLAGS: -Wall -O2
 // #cgo LDFLAGS: -L. -llightning -lm -ljack -lsndfile -lpthread -lsamplerate -logg
 // #include "lightning.h"
-// #include "types.h"
 import "C"
 
 import (

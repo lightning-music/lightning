@@ -81,13 +81,13 @@
  * for JackClient to use to determine this.
  */
 #include <assert.h>
-#include <types.h>
 #include <stddef.h>
 #include <string.h>
 
 #include "event.h"
 #include "export-thread.h"
 #include "log.h"
+#include "lightning.h"
 #include "mem.h"
 #include "mutex.h"
 #include "ringbuffer.h"

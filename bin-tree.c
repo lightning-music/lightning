@@ -1,11 +1,11 @@
 #include <assert.h>
-#include <types.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "atom.h"
 #include "bin-tree.h"
+#include "lightning.h"
 #include "mem.h"
 
 struct node {

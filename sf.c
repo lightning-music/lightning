@@ -1,10 +1,10 @@
 #include <assert.h>
-#include <types.h>
 #include <sndfile.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "lightning.h"
 #include "log.h"
 #include "mem.h"
 #include "sf.h"

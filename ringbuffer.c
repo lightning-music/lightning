@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <jack/ringbuffer.h>
-#include <types.h>
 #include <stddef.h>
 
+#include "lightning.h"
 #include "mem.h"
 #include "ringbuffer.h"
 

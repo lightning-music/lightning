@@ -1,7 +1,7 @@
 #ifndef SAMPLE_DISK_H_INCLUDED
 #define SAMPLE_DISK_H_INCLUDED
 
-#include <types.h>
+#include "lightning.h"
 
 typedef struct SampleDisk *SampleDisk;
 

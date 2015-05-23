@@ -4,7 +4,7 @@
 #include "ringbuffer.h"
 #include "sample-disk.h"
 #include "thread.h"
-#include "types.h"
+#include "lightning.h"
 
 struct SampleDisk {
     char *path;

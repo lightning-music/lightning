@@ -3,8 +3,7 @@
 
 #define MAX_POLYPHONY 64
 
-#include <types.h>
-
+#include "lightning.h"
 #include "sample.h"
 
 /**

@@ -4,7 +4,6 @@
  */
 #include <assert.h>
 #include <jack/jack.h>
-#include <types.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,6 +12,7 @@
 #include "event.h"
 #include "export-thread.h"
 #include "jack-client.h"
+#include "lightning.h"
 #include "log.h"
 #include "mem.h"
 #include "mutex.h"

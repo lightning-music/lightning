@@ -1,12 +1,13 @@
 #include <assert.h>
-#include <types.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "defines.h"
+#include "lightning.h"
 #include "mem.h"
 #include "sample.h"
 #include "sample-ram.h"
+
+#define SAMPLE_TYPE SampleType_RAM
 
 static void
 not_implemented(void)

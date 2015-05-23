@@ -1,7 +1,7 @@
 #ifndef BINTREE_H_INCLUDED
 #define BINTREE_H_INCLUDED
 
-#include <types.h>
+#include "lightning.h"
 #include <stddef.h>
 
 /* It is a checked runtime error to pass a NULL BinTree to any

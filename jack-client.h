@@ -8,8 +8,9 @@
 #ifndef JACK_CLIENT_H_INCLUDED
 #define JACK_CLIENT_H_INCLUDED
 
-#include <types.h>
 #include <stddef.h>
+
+#include "lightning.h"
 
 /**
  * AudioEngine data structure.

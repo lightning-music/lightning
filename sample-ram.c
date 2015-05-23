@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <types.h>
 #include <math.h>
 /* #include <sndfile.h> */
 #include <stddef.h>
@@ -9,6 +8,7 @@
 
 #include "clip.h"
 #include "event.h"
+#include "lightning.h"
 #include "log.h"
 #include "mem.h"
 #include "mutex.h"

@@ -5,7 +5,7 @@
 #ifndef SRC_H_INCLUDED
 #define SRC_H_INCLUDED
 
-#include <types.h>
+#include "lightning.h"
 
 typedef struct SRC *SRC;
 

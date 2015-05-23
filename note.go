@@ -1,8 +1,8 @@
 package lightning
 
 import (
-	"bytes"
 	"encoding/json"
+	"io"
 )
 
 // Note defines a MIDI-style note
@@ -16,21 +16,9 @@ func NewNote(sample string, num, vel int32) *Note {
 	return &Note{sample, num, vel}
 }
 
-// DecodeNote json-decode a Note
-func DecodeNote(b []byte) (*Note, error) {
-	n := new(Note)
-	err := json.Unmarshal(b, n)
+// ReadNote reads a JSON-formatted Note from an io.Reader
+func ReadNote(r io.Reader) (*Note, error) {
+	dec, n := json.NewDecoder(r), new(Note)
+	err := dec.Decode(n)
 	return n, err
-}
-
-// DecodeNote json-decode a Note from a string
-func DecodeNoteString(s string) (*Note, error) {
-	n := new(Note)
-	err := json.Unmarshal(bytes.NewBufferString(s).Bytes(), n)
-	return n, err
-}
-
-// EncodeNote json-encode a Note
-func EncodeNote(n *Note) ([]byte, error) {
-	return json.Marshal(n)
 }

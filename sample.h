@@ -1,8 +1,7 @@
 #ifndef SAMPLE_H_INCLUDED
 #define SAMPLE_H_INCLUDED
 
-#include <types.h>
-
+#include "lightning.h"
 #include "sample-disk.h"
 #include "sample-ram.h"
 

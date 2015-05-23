@@ -7,13 +7,15 @@ samples. With it you can
 Install
 =======
 
-Dependencies:
+First, install the following dependencies:
 
 * jack
 * libsndfile
 * libsamplerate
 
-To install just the C library, install the dependencies then
+#### C
+
+Installing as a C library
 
 ```shell
 make
