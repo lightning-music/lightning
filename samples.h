@@ -7,22 +7,15 @@
 #include "sample.h"
 
 /**
- * Polyphonic sample playback
+ * Polyphonic sample playback.
  */
 typedef struct Samples *Samples;
 
+/**
+ * Initialize a Sample object.
+ */
 Samples
 Samples_init(nframes_t output_sr);
-
-/**
- * Add a directory to the list of directories
- * searched for audio files.
- * Returns 0 if the directory exists and was
- * added to the list, and nonzero if the directory
- * didn't exist or couldn't be added to the list (OOM)
- */
-int
-Samples_add_dir(Samples samps, const char *dir);
 
 /**
  * Load a sample into the cache.
@@ -38,8 +31,8 @@ Samples_load(Samples samps,
  * it will be stored in the cache so that subsequent loads
  * will be from memory.
  *
- * @param  {Samples}        samps - Samples instance
- * @param  {const char *}   path - path to audio file
+ * @param {Samples} samps - Samples instance
+ * @param {const char *} path - path to audio file
  */
 Sample
 Samples_play(Samples samps,
@@ -47,12 +40,28 @@ Samples_play(Samples samps,
              pitch_t pitch,
              gain_t gain);
 
+/**
+ * Samples_write writes the data for all currently playing samples
+ * to a pair of stereo buffers.
+ * @return 0 on success, nonzero on failure.
+ */
 int
 Samples_write(Samples samps,
               sample_t **buffers,
               channels_t channels,
               nframes_t frames);
 
+/**
+ * Samples_wait causes the current thread to wait until
+ * all currently playing samples have finished.
+ * @return 0 on success, nonzero otherwise
+ */
+int
+Samples_wait(Samples samps);
+
+/**
+ * Free the resources held by a Samples object.
+ */
 void
 Samples_free(Samples *cache);
 

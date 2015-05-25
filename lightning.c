@@ -44,13 +44,6 @@ Lightning_connect_to(Lightning lightning, const char *ch1, const char *ch2)
     return JackClient_connect_to(lightning->jack_client, ch1, ch2);
 }
 
-int
-Lightning_add_dir(Lightning lightning, const char *dir)
-{
-    assert(lightning);
-    return Samples_add_dir(lightning->samples, dir);
-}
-
 /**
  * Play a sample
  */
@@ -82,6 +75,13 @@ Lightning_export_stop(Lightning lightning)
 {
     assert(lightning);
     return JackClient_export_stop(lightning->jack_client);
+}
+
+int
+Lightning_wait(Lightning lightning)
+{
+    assert(lightning);
+    return Samples_wait(lightning->samples);
 }
 
 void

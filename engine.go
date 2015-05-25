@@ -7,7 +7,6 @@ import "C"
 
 import (
 	"errors"
-	"fmt"
 	"math"
 )
 
@@ -15,8 +14,6 @@ import (
 type Engine interface {
 	// Connect JACK audio outputs
 	Connect(ch1 string, ch2 string) error
-	// AddDir a directory to the search list
-	AddDir(file string) error
 	// PlaySample plays an audio sample
 	PlaySample(file string, pitch float64, gain float64) error
 	// PlayNote plays a note
@@ -35,14 +32,6 @@ func (this *impl) Connect(ch1 string, ch2 string) error {
 	err := int(C.Lightning_connect_to(this.handle, C.CString(ch1), C.CString(ch2)))
 	if err != 0 {
 		return errors.New("could not connect to JACK sinks")
-	} else {
-		return nil
-	}
-}
-
-func (this *impl) AddDir(file string) error {
-	if rc := int(C.Lightning_add_dir(this.handle, C.CString(file))); rc != 0 {
-		return fmt.Errorf("Lightning_add_dir returned %d", rc)
 	} else {
 		return nil
 	}

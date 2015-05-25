@@ -78,14 +78,6 @@ typedef struct LightningThreadData {
     LightningEvent event;
 } *LightningThreadData;
 
-/**
- * Search directories for a sample and return Sample_init
- * if it's found, NULL otherwise.
- * Returns NULL if the file could not be found.
- */
-static Sample
-Samples_find_file(Samples samps, const char *file, nframes_t output_sr);
-
 Samples
 Samples_init(nframes_t output_sr)
 {
@@ -154,36 +146,6 @@ Samples_init(nframes_t output_sr)
     return samps;
 }
 
-int
-Samples_add_dir(Samples samps, const char *dir)
-{
-    static const int MAX_DIRS = 32;
-
-    assert(samps);
-    DIR *dh = opendir(dir);
-    if (dh == NULL) {
-        return 1;
-    }
-    int i = 0;
-    if (samps->dirs == NULL) {
-        /* note the arbitrary limit on the number of directories */
-        samps->dirs = CALLOC(MAX_DIRS, sizeof(char*));
-    } else {
-        while (samps->dirs[i++] != NULL) ;
-    }
-    if (i == MAX_DIRS) {
-        LOG(Warn, "maximum number of search directories reached (%d)",
-            MAX_DIRS);
-        return 1;
-    }
-    size_t len = strlen(dir);
-    samps->dirs[i] = ALLOC(len + 1);
-    memcpy(samps->dirs[i], dir, len);
-    samps->dirs[len] = '\0';
-    LOG(Info, "added %s to search directories", dir);
-    return 0;
-}
-
 Sample
 Samples_load(Samples samps, const char *path)
 {
@@ -193,12 +155,13 @@ Samples_load(Samples samps, const char *path)
     if (NULL == cached) {
         LOG(Debug, "sample %s was not cached", path);
         /* initialize and cache it */
-        Sample samp = Samples_find_file(samps, path, samps->output_sr);
+        Sample samp = Sample_init(path, 1.0, 1.0, samps->output_sr);
+        /* Sample samp = Samples_find_file(samps, path, samps->output_sr); */
         if (samp != NULL) {
             LOG(Debug, "storing %s -> %p in cache", path, samp);
             BinTree_insert(samps->cache, path, samp);
         } else {
-            LOG(Info, "could not find %s in search dirs", path);
+            LOG(Info, "could not open %s", path);
         }
         return samp;
     } else {
@@ -308,6 +271,24 @@ Samples_write(Samples samps,
     return 0;
 }
 
+int
+Samples_wait(Samples samps)
+{
+    assert(samps);
+    // wait for them 1 by 1
+    int i, rc;
+    for (i = 0; i < MAX_POLYPHONY; i++) {
+        if (samps->active[i] != NULL) {
+            rc = Sample_wait(samps->active[i]);
+            LOG(Debug, "Could not wait for %s", Sample_path(samps->active[i]));
+            if (rc != 0) {
+                return rc;
+            }
+        }
+    }
+    return 0;
+}
+
 void
 Samples_free(Samples *samps)
 {
@@ -360,35 +341,4 @@ free_done_samples(void *arg)
             Sample_free(&samp);
         }
     }
-}
-
-static Sample
-Samples_find_file(Samples samps, const char *file, nframes_t output_sr)
-{
-    LOG(Debug, "attempting to open %s", file);
-    Sample s = Sample_init(file, 1.0, 1.0, output_sr);
-    if (!Sample_isnull(s)) {
-        return s;
-    }
-    if (samps->dirs == NULL) {
-        LOG(Info, "no search %s", "dirs");
-        return NULL;
-    } else {
-        LOG(Info, "searching %s dirs", "search");
-    }
-    char catpath[4096];
-    char *dp = *samps->dirs;
-    LOG(Info, "could not find %s, searching %s", file, dp);
-    while (dp != NULL) {
-        LOG(Debug, "searching %s for %s", dp, file);
-        sprintf(catpath, "%s/%s", dp, file);
-        LOG(Debug, "catpath is %s", catpath);
-        s = Sample_init(catpath, 1.0, 1.0, output_sr);
-        if (! Sample_isnull(s)) {
-            break;
-        }
-        dp++;
-        LOG(Info, "now searching %s", dp);
-    }
-    return s;
 }

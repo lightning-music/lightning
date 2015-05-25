@@ -5,7 +5,6 @@
 #include "sample-disk.h"
 #include "sample-ram.h"
 
-/* typedef struct Sample *Sample; */
 typedef union Sample {
     SampleRam ram;
     SampleDisk disk;
@@ -24,6 +23,11 @@ Sample
 Sample_init(const char *file, pitch_t pitch,
             gain_t gain, nframes_t output_samplerate);
 
+/**
+ * Sample_clone clones a sample structure.
+ * This is used to create clones of cached sample data.
+ * The clone is then added to the play buffer for the rt callback to pick up.
+ */
 Sample
 Sample_clone(Sample orig,
              pitch_t pitch,
@@ -32,7 +36,11 @@ Sample_clone(Sample orig,
 
 /**
  * Determine if the underlying sample structure is null.
- * This is hacky and should be refactored.
+ * This should be used to determine if there were any errors
+ * initializing the sample.
+ * Returns 1 if the sample could not be initialized, 0 otherwise.
+ * If the sample could not be initialized, client code should free
+ * the sample and figure out what went wrong by inspecting the logs.
  */
 int
 Sample_isnull(Sample samp);
@@ -53,11 +61,15 @@ Sample_write(Sample samp,
              channels_t channels,
              nframes_t frames);
 
+/**
+ * Return 1 if the sample is done playing, 0 otherwise.
+ */
 int
 Sample_done(Sample samp);
 
 /**
  * Make current thread wait for the sample to finish playing.
+ * Returns 0 if successful, nonzero otherwise.
  */
 int
 Sample_wait(Sample samp);
