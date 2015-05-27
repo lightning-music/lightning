@@ -5,7 +5,7 @@
 package lightning
 
 // #cgo CFLAGS: -Wall -O2
-// #cgo LDFLAGS: -L. -llightning -lm -ljack -lsndfile -lpthread -lsamplerate -logg
+// #cgo LDFLAGS: -L. -lm -ljack -lsndfile -lpthread -lsamplerate -logg
 // #include "lightning.h"
 import "C"
 
