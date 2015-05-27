@@ -15,15 +15,6 @@ First, install the following dependencies:
 * libsndfile
 * libsamplerate
 
-#### C
-
-Installing as a C library
-
-```shell
-make
-make install
-```
-
 On ubuntu-based systems you can do
 
 ```shell
@@ -42,8 +33,6 @@ Usage
 =====
 
 For go usage see the [godocs](http://godoc.org/github.com/lightning/lightning).
-
-For the C api, see [lightning.h](http://github.com/lightning/lightning/blob/master/lightning.h).
 
 Contributing
 ============
