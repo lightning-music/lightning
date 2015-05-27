@@ -12,6 +12,7 @@ type Note struct {
 	Velocity int32  `json:"velocity"`
 }
 
+// NewNote creates a new Note object
 func NewNote(sample string, num, vel int32) *Note {
 	return &Note{sample, num, vel}
 }

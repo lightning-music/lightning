@@ -62,15 +62,12 @@ JackClient_is_processing(JackClient client)
     return client->state == JackClientState_Processing;
 }
 
-/* called by JACK whenever the server's sample
-   rate changes */
-
+/* called by JACK whenever the server's sample rate changes */
 static int
 samplerate_callback(nframes_t sr,
                     void *data)
 {
-    /* Notify client code that depends on the output
-       sample rate */
+    /* Notify client code that depends on the output sample rate */
     return 0;
 }
 
@@ -80,8 +77,7 @@ void
 jack_shutdown(void *arg)
 {
     JackClient client = (JackClient) arg;
-    JackClient_set_state(client,
-                         JackClientState_Finished);
+    JackClient_set_state(client, JackClientState_Finished);
 }
 
 /**
@@ -101,30 +97,20 @@ int
 process(jack_nframes_t nframes, void *arg)
 {
     JackClient client = (JackClient) arg;
-
     /* return if the client is not ready for processing */
-
     if (! JackClient_is_processing(client)) {
         return 0;
     }
-
     /* setup output sample buffers */
-
-    client->buffers[0] = jack_port_get_buffer(client->jack_output_port_1,
-                                              nframes );
-    client->buffers[1] = jack_port_get_buffer(client->jack_output_port_2,
-                                              nframes);
-
+    client->buffers[0] = jack_port_get_buffer(client->jack_output_port_1, nframes);
+    client->buffers[1] = jack_port_get_buffer(client->jack_output_port_2, nframes);
     /* write data to the output buffer */
-
     int result = client->audio_callback(client->buffers,
-                                        2, (nframes_t) nframes,
+                                        2,
+                                        (nframes_t) nframes,
                                         client->data);
-
     /* possible write data to an audio file */
-
     ExportThread_write(client->export_thread, client->buffers, nframes);
-
     return result;
 }
 
@@ -133,32 +119,23 @@ JackClient_init(AudioCallback audio_callback, void *client_data)
 {
     JackClient client;
     NEW(client);
-
     /* initialize state mutex and set state to Initializing */
-
     client->state_mutex = Mutex_init();
-
     if (JackClient_set_state(client, JackClientState_Initializing)) {
         fprintf(stderr, "Could not set JackClient state to Initializing\n");
         exit(EXIT_FAILURE);
     }
-
     /* open jack client */
-    
     client->jack_client = jack_client_open("lightning", JackNullOption, NULL);
-
     if (client->jack_client == 0) {
         fprintf(stderr, "Jack server not running?\n");
         exit(EXIT_FAILURE);
     }
-
     nframes_t sr = jack_get_sample_rate(client->jack_client);
-
     client->data = client_data;
     client->audio_callback = audio_callback;
     client->export_thread = ExportThread_create(sr, 2);
     client->buffers = CALLOC(2, sizeof(sample_t*));
-
     return client;
 }
 
@@ -169,36 +146,21 @@ int
 JackClient_setup_callbacks(JackClient client)
 {
     /* register error callback */
-
     jack_set_error_function(jack_errors);
-
     /* register shutdown callback */
-
     jack_on_shutdown(client->jack_client, jack_shutdown, client);
-
     /* register realtime callback */
-
     if (jack_set_process_callback(client->jack_client, process, client)) {
         fprintf(stderr, "Could not register process callback\n");
         exit(EXIT_FAILURE);
     }
-
-    /* register a callback for when jack changes the output
-       sample rate */
+    /* register a callback for when jack changes the output sample rate */
     if (jack_set_sample_rate_callback(client->jack_client,
                                       samplerate_callback,
                                       client)) {
         fprintf(stderr, "Could not register samplerate callback\n");
         exit(EXIT_FAILURE);
     }
-
-    /* set state to Processing */
-
-    /* if (JackClient_set_state(client, JackClientState_Processing)) { */
-    /*     fprintf(stderr, "Could not set JackClient state to Processing\n"); */
-    /*     exit(EXIT_FAILURE); */
-    /* } */
-
     return 0;
 }
 
@@ -213,9 +175,7 @@ int
 JackClient_setup_ports(JackClient client)
 {
     assert(client);
-
     /* register output ports */
-
     client->jack_output_port_1 = \
         jack_port_register(client->jack_client,
                            "output_1",
@@ -234,39 +194,11 @@ JackClient_setup_ports(JackClient client)
         fprintf(stderr, "wtf\n");
         exit(EXIT_FAILURE);
     }
-
-    /* const char *playback1 = "system:playback_1"; */
-    /* const char *playback2 = "system:playback_2"; */
-
-    /* /\* connect playback_1 *\/ */
-
-    /* if (jack_connect(client->jack_client, */
-    /*                  jack_port_name(client->jack_output_port_1), */
-    /*                  playback1)) { */
-    /*     fprintf(stderr, "Could not connect %s to %s\n", */
-    /*             jack_port_name(client->jack_output_port_1), */
-    /*             playback1); */
-    /*     exit(EXIT_FAILURE); */
-    /* } */
-
-    /* /\* connect playback_2 *\/ */
-
-    /* if (jack_connect(client->jack_client, */
-    /*                  jack_port_name(client->jack_output_port_2), */
-    /*                  playback2)) { */
-    /*     fprintf(stderr, "Could not connect %s to %s\n", */
-    /*             jack_port_name(client->jack_output_port_2), */
-    /*             playback2); */
-    /*     exit(EXIT_FAILURE); */
-    /* } */
-
     /* set state to Processing */
-
     if (JackClient_set_state(client, JackClientState_Processing)) {
         fprintf(stderr, "Could not set JackClient state to Processing\n");
         exit(EXIT_FAILURE);
     }
-
     return 0;
 }
 
@@ -278,7 +210,6 @@ JackClient_connect_to(JackClient client, const char *ch1, const char *ch2)
     int err = jack_connect(client->jack_client,
                            jack_port_name(client->jack_output_port_1),
                            ch1);
-
     /* connect playback_1 */
     if (err) {
         LOG(Error, "Could not connect %s to %s\n",
@@ -286,7 +217,6 @@ JackClient_connect_to(JackClient client, const char *ch1, const char *ch2)
             ch1);
         return err;
     }
-
     /* connect playback_2 */
     err = jack_connect(client->jack_client,
                        jack_port_name(client->jack_output_port_2),
@@ -297,7 +227,6 @@ JackClient_connect_to(JackClient client, const char *ch1, const char *ch2)
             ch2);
         return err;
     }
-
     return 0;
 }
 
@@ -333,7 +262,6 @@ JackClient_buffersize(JackClient jack)
     return jack_get_buffer_size(jack->jack_client);
 }
 
-/* FIXME */
 int
 JackClient_playback_ports(JackClient jack)
 {

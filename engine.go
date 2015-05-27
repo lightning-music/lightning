@@ -1,3 +1,7 @@
+// lightning is a simple package for playing audio files
+// with JACK (https://jackaudio.org). It provides control over
+// sample pitch and gain, as well as a way to export the
+// output signal to a file.
 package lightning
 
 // #cgo CFLAGS: -Wall -O2
@@ -10,7 +14,7 @@ import (
 	"math"
 )
 
-// lightning audio engine public interface
+// Engine provides methods for playing audio files with JACK
 type Engine interface {
 	// Connect JACK audio outputs
 	Connect(ch1 string, ch2 string) error
@@ -24,10 +28,12 @@ type Engine interface {
 	ExportStop() int
 }
 
+// impl Engine implementation
 type impl struct {
 	handle C.Lightning
 }
 
+// Connect JACK outputs
 func (this *impl) Connect(ch1 string, ch2 string) error {
 	err := int(C.Lightning_connect_to(this.handle, C.CString(ch1), C.CString(ch2)))
 	if err != 0 {
@@ -37,6 +43,7 @@ func (this *impl) Connect(ch1 string, ch2 string) error {
 	}
 }
 
+// PlaySample play an audio sample
 func (this *impl) PlaySample(file string, pitch float64, gain float64) error {
 	err := C.Lightning_play_sample(
 		this.handle, C.CString(file), C.pitch_t(pitch), C.gain_t(gain),
@@ -48,28 +55,31 @@ func (this *impl) PlaySample(file string, pitch float64, gain float64) error {
 	}
 }
 
-// OPTIMIZE: use a static map from midi notes to pitches
+// getPitch calculates the sample playback speed for a given midi note
 func getPitch(note *Note) float64 {
 	return float64(math.Pow(2.0, (float64(note.Number)-60.0)/12.0))
 }
 
+// PlayNote plays a note with a sample
 func (this *impl) PlayNote(note *Note) error {
 	pitch := getPitch(note)
 	gain := float64(float64(note.Velocity) / 127.0)
 	return this.PlaySample(note.Sample, pitch, gain)
 }
 
+// ExportStart starts exporting to an audio file
 func (this *impl) ExportStart(file string) int {
 	return int(C.Lightning_export_start(
 		this.handle, C.CString(file),
 	))
 }
 
+// ExportStop stops exporting to an audio file
 func (this *impl) ExportStop() int {
 	return int(C.Lightning_export_stop(this.handle))
 }
 
-// NewEngine initializes a new lightning engine.
+// NewEngine initializes a new lightning engine
 func NewEngine() Engine {
 	instance := new(impl)
 	instance.handle = C.Lightning_init()
