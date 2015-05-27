@@ -4,6 +4,8 @@ samples. With it you can
 * Play any file format supported by libsndfile
 * Control over playback speed and gain
 
+[![Build Status](https://drone.io/github.com/lightning/lightning/status.png)](https://drone.io/github.com/lightning/lightning/latest)
+
 Install
 =======
 
