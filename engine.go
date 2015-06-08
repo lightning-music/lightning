@@ -26,6 +26,8 @@ type Engine interface {
 	ExportStart(file string) int
 	// ExportStop stop the currently running export job if there is one
 	ExportStop() int
+	// Close disconnect the jack client and free Lightning instance resources
+	Close()
 }
 
 // impl Engine implementation
@@ -34,8 +36,8 @@ type impl struct {
 }
 
 // Connect JACK outputs
-func (this *impl) Connect(ch1 string, ch2 string) error {
-	err := int(C.Lightning_connect_to(this.handle, C.CString(ch1), C.CString(ch2)))
+func (self *impl) Connect(ch1 string, ch2 string) error {
+	err := int(C.Lightning_connect_to(self.handle, C.CString(ch1), C.CString(ch2)))
 	if err != 0 {
 		return errors.New("could not connect to JACK sinks")
 	} else {
@@ -44,9 +46,9 @@ func (this *impl) Connect(ch1 string, ch2 string) error {
 }
 
 // PlaySample play an audio sample
-func (this *impl) PlaySample(file string, pitch float64, gain float64) error {
+func (self *impl) PlaySample(file string, pitch float64, gain float64) error {
 	err := C.Lightning_play_sample(
-		this.handle, C.CString(file), C.pitch_t(pitch), C.gain_t(gain),
+		self.handle, C.CString(file), C.pitch_t(pitch), C.gain_t(gain),
 	)
 	if err != 0 {
 		return errors.New("could not play sample")
@@ -61,22 +63,27 @@ func getPitch(note *Note) float64 {
 }
 
 // PlayNote plays a note with a sample
-func (this *impl) PlayNote(note *Note) error {
+func (self *impl) PlayNote(note *Note) error {
 	pitch := getPitch(note)
 	gain := float64(float64(note.Velocity) / 127.0)
-	return this.PlaySample(note.Sample, pitch, gain)
+	return self.PlaySample(note.Sample, pitch, gain)
 }
 
 // ExportStart starts exporting to an audio file
-func (this *impl) ExportStart(file string) int {
+func (self *impl) ExportStart(file string) int {
 	return int(C.Lightning_export_start(
-		this.handle, C.CString(file),
+		self.handle, C.CString(file),
 	))
 }
 
 // ExportStop stops exporting to an audio file
-func (this *impl) ExportStop() int {
-	return int(C.Lightning_export_stop(this.handle))
+func (self *impl) ExportStop() int {
+	return int(C.Lightning_export_stop(self.handle))
+}
+
+// Close disconnect jack client and free Lightning instance resources
+func (self *impl) Close() {
+	C.Lightning_free(&self.handle)
 }
 
 // NewEngine initializes a new lightning engine
